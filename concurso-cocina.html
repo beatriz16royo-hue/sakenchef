@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Tablón — Concurso de Cocina</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root{
+  --bg:#15211c;
+  --surface:#1c2a23;
+  --surface-2:#24352c;
+  --line:#33463b;
+  --text:#f2ecda;
+  --text-dim:#a9b8ae;
+  --gold:#d9a441;
+  --gold-dim:#8a6c33;
+  --red:#c0453a;
+  --teal:#4fa394;
+  --radius:10px;
+  --font-display:'Fraunces', serif;
+  --font-body:'Work Sans', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);}
+::selection{background:var(--gold);color:#1c2a23;}
+
+.wrap{max-width:780px;margin:0 auto;padding:28px 20px 80px;}
+
+/* header */
+.hdr{display:flex;flex-direction:column;gap:4px;margin-bottom:22px;position:relative;}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.title{font-family:var(--font-display);font-weight:700;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:2px 0 0;}
+.title em{font-style:italic;color:var(--gold);}
+.subline{color:var(--text-dim);font-size:14px;margin-top:6px;}
+.me-badge{position:absolute;top:0;right:0;font-family:var(--font-mono);font-size:12px;color:var(--text-dim);text-align:right;cursor:pointer;background:none;border:none;}
+.me-badge b{color:var(--text);}
+.me-badge:hover{color:var(--gold);}
+
+/* nav */
+.tabs{display:flex;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:4px;margin-bottom:22px;overflow-x:auto;}
+.tab{flex:1;padding:9px 10px;text-align:center;font-size:13px;font-weight:500;border-radius:7px;cursor:pointer;color:var(--text-dim);white-space:nowrap;transition:background .15s,color .15s;}
+.tab.active{background:var(--gold);color:#1c2a23;font-weight:600;}
+.tab:not(.active):hover{color:var(--text);}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:16px;}
+.card h2{font-family:var(--font-display);font-size:22px;margin:0 0 4px;}
+.card h3{font-family:var(--font-display);font-size:17px;margin:22px 0 10px;color:var(--gold);}
+.card h3:first-child{margin-top:0;}
+.help{color:var(--text-dim);font-size:13.5px;line-height:1.5;margin:0 0 16px;}
+
+label{display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.05em;}
+input[type=text]{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);padding:11px 12px;border-radius:7px;font-size:15px;font-family:var(--font-body);}
+input[type=text]:focus{outline:2px solid var(--gold);outline-offset:1px;}
+.field{margin-bottom:14px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--gold);color:#1c2a23;border:none;padding:11px 18px;border-radius:7px;font-weight:600;font-size:14.5px;cursor:pointer;font-family:var(--font-body);transition:filter .15s,transform .1s;}
+.btn:hover{filter:brightness(1.08);}
+.btn:active{transform:scale(.98);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.secondary{background:transparent;border:1px solid var(--line);color:var(--text);}
+.btn.secondary:hover{border-color:var(--gold);color:var(--gold);}
+.btn.danger{background:transparent;border:1px solid var(--red);color:var(--red);}
+.btn.danger:hover{background:var(--red);color:var(--text);}
+.btn.block{width:100%;}
+.btn.small{padding:6px 12px;font-size:13px;}
+
+/* role choice cards */
+.choices{display:grid;gap:10px;margin:10px 0 18px;}
+.choice{border:1px solid var(--line);background:var(--surface-2);border-radius:8px;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .15s,background .15s;}
+.choice:hover{border-color:var(--gold-dim);}
+.choice.sel{border-color:var(--gold);background:rgba(217,164,65,.1);}
+.choice .name{font-weight:600;font-size:15px;}
+.choice .tag{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);text-transform:uppercase;}
+
+/* participants list */
+.plist{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.pill{font-family:var(--font-mono);font-size:12.5px;background:var(--surface-2);border:1px solid var(--line);padding:5px 10px;border-radius:20px;color:var(--text-dim);}
+.pill.a{border-color:var(--teal);color:var(--teal);}
+.pill.b{border-color:var(--red);color:var(--red);}
+.pill.n{color:var(--text-dim);}
+
+.status-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line);font-size:13.5px;}
+.status-row:first-of-type{border-top:none;}
+.status-row .n{font-family:var(--font-mono);color:var(--gold);}
+
+/* scorecard ranking */
+.scorecard{border:1px dashed var(--line);border-radius:8px;padding:16px;margin-bottom:16px;background:linear-gradient(180deg,rgba(217,164,65,.04),transparent);}
+.scorecard .cat{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:10px;}
+.rank-item{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;padding:9px 10px;margin-bottom:6px;}
+.rank-item .score{font-family:var(--font-mono);font-weight:600;color:var(--gold);width:22px;text-align:center;flex-shrink:0;}
+.rank-item .nm{flex:1;font-size:14.5px;}
+.rank-item .arrows{display:flex;gap:4px;}
+.arrow-btn{background:var(--surface);border:1px solid var(--line);color:var(--text-dim);width:26px;height:26px;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.arrow-btn:hover:not(:disabled){color:var(--gold);border-color:var(--gold-dim);}
+.arrow-btn:disabled{opacity:.25;cursor:default;}
+
+/* results */
+.dish-block{margin-bottom:26px;}
+.dish-title{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
+.dish-title h3{margin:0;color:var(--text);font-size:20px;}
+.badge-count{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);}
+th{font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);font-weight:500;}
+td.num,th.num{text-align:center;font-family:var(--font-mono);}
+tr.winner td{color:var(--gold);font-weight:600;}
+.medal{display:inline-block;font-size:10px;font-family:var(--font-mono);background:var(--gold);color:#1c2a23;padding:2px 6px;border-radius:10px;margin-left:6px;vertical-align:middle;}
+.medal.cat{background:var(--teal);}
+.total-col{font-weight:700;color:var(--gold);}
+
+.ribbon{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-size:15px;color:var(--gold);}
+.ribbon svg{width:16px;height:16px;}
+
+.empty{color:var(--text-dim);font-size:14px;text-align:center;padding:30px 10px;}
+.progress-bar{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin-top:6px;}
+.progress-bar>div{height:100%;background:var(--gold);}
+
+.history-item{padding:12px 0;border-top:1px solid var(--line);}
+.history-item:first-child{border-top:none;}
+.history-item .wk{font-family:var(--font-mono);font-size:11px;color:var(--text-dim);}
+.history-item .win{font-family:var(--font-display);font-size:16px;margin-top:2px;}
+
+.footer-note{text-align:center;color:var(--text-dim);font-size:12px;margin-top:30px;font-family:var(--font-mono);}
+@media (max-width:480px){.row2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+const { get, set, list } = window.storage;
+
+/* ---------- helpers ---------- */
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const esc = s => (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function sget(key, shared=false){
+  try{ const r = await get(key, shared); return r ? JSON.parse(r.value) : null; }
+  catch(e){ return null; }
+}
+async function sset(key, val, shared=false){
+  try{ await set(key, JSON.stringify(val), shared); }catch(e){ console.error('storage set failed', key, e); }
+}
+
+/* ---------- app state ---------- */
+let state = {
+  me: null,          // {name}
+  contest: null,     // {weekId,label,dishA:{name},dishB:{name},categories:[...],createdAt}
+  participants: {},  // name -> 'a'|'b'|'eat'
+  votes: {},         // dish -> voterName -> {cat: [names ranked best->worst]}
+  history: [],
+  tab: 'inicio',
+  loading: true
+};
+
+function eligibleVoters(dishKey){
+  // everyone who is not cooking that dish
+  const excludeRole = dishKey; // 'a' excludes cooks of a
+  return Object.keys(state.participants).filter(n => state.participants[n] !== excludeRole);
+}
+function cooksOf(dishKey){
+  return Object.keys(state.participants).filter(n => state.participants[n] === dishKey);
+}
+
+/* ---------- storage load ---------- */
+async function loadAll(){
+  const cur = await sget('contest:current', true);
+  state.contest = cur;
+  if(cur){
+    state.participants = await sget('participants:'+cur.weekId, true) || {};
+    const dishes = ['a','b'];
+    for(const d of dishes){
+      const keys = await list('votes:'+cur.weekId+':'+d+':', true).catch(()=>null);
+      const map = {};
+      if(keys && keys.keys){
+        for(const k of keys.keys){
+          const voter = k.split(':').slice(3).join(':');
+          const v = await sget(k, true);
+          if(v) map[voter] = v;
+        }
+      }
+      state.votes[d] = map;
+    }
+  } else {
+    state.participants = {};
+    state.votes = {a:{},b:{}};
+  }
+  state.history = await sget('history', true) || [];
+  const me = await sget('me', false);
+  state.me = me;
+  state.loading = false;
+  render();
+}
+
+/* ---------- actions ---------- */
+async function setMe(name){
+  state.me = {name};
+  await sset('me', {name}, false);
+  render();
+}
+async function forgetMe(){
+  state.me = null;
+  await sset('me', null, false);
+  render();
+}
+
+async function createContest(dishAName, dishBName, categories){
+  // archive previous week into history if it exists and had participants
+  if(state.contest && Object.keys(state.participants).length){
+    const results = computeResults();
+    state.history.unshift({
+      weekId: state.contest.weekId,
+      label: state.contest.label,
+      dishA: state.contest.dishA.name,
+      dishB: state.contest.dishB.name,
+      winnerA: results.a.winner,
+      winnerB: results.b.winner
+    });
+    await sset('history', state.history.slice(0,30), true);
+  }
+  const weekId = uid();
+  const contest = {
+    weekId,
+    label: 'Semana del ' + new Date().toLocaleDateString('es-ES', {day:'numeric', month:'long'}),
+    dishA: {name: dishAName},
+    dishB: {name: dishBName},
+    categories,
+    createdAt: Date.now()
+  };
+  await sset('contest:current', contest, true);
+  await sset('participants:'+weekId, {}, true);
+  state.contest = contest;
+  state.participants = {};
+  state.votes = {a:{}, b:{}};
+  state.tab = 'participar';
+  render();
+}
+
+async function joinAs(role){
+  if(!state.me || !state.contest) return;
+  state.participants[state.me.name] = role;
+  await sset('participants:'+state.contest.weekId, state.participants, true);
+  state.tab = 'votar';
+  render();
+}
+
+async function saveRanking(dishKey, category, orderedNames){
+  const weekId = state.contest.weekId;
+  const key = 'votes:'+weekId+':'+dishKey+':'+state.me.name;
+  const existing = state.votes[dishKey][state.me.name] || {};
+  existing[category] = orderedNames;
+  state.votes[dishKey][state.me.name] = existing;
+  await sset(key, existing, true);
+}
+
+/* ---------- scoring ---------- */
+function computeResults(){
+  const out = {};
+  for(const dishKey of ['a','b']){
+    if(!state.contest) { out[dishKey] = {participants:[], categories:{}, totals:{}, winner:null, catWinners:{}}; continue; }
+    const cooks = cooksOf(dishKey);
+    const n = cooks.length;
+    const cats = state.contest.categories;
+    const totals = {}; cooks.forEach(c => totals[c] = 0);
+    const perCat = {}; // cat -> name -> score
+    cats.forEach(cat => { perCat[cat] = {}; cooks.forEach(c => perCat[cat][c] = 0); });
+
+    const votersMap = state.votes[dishKey] || {};
+    Object.values(votersMap).forEach(voteObj => {
+      cats.forEach(cat => {
+        const order = voteObj[cat]; // best -> worst
+        if(!order) return;
+        order.forEach((name, idx) => {
+          if(!(name in perCat[cat])) return;
+          const score = n - idx; // best gets n, worst gets 1
+          perCat[cat][name] += score;
+          totals[name] += score;
+        });
+      });
+    });
+
+    const catWinners = {};
+    cats.forEach(cat => {
+      let best = null, bestScore = -1;
+      cooks.forEach(c => { if(perCat[cat][c] > bestScore){ bestScore = perCat[cat][c]; best = c; } });
+      catWinners[cat] = best;
+    });
+
+    let winner = null, wScore = -1;
+    cooks.forEach(c => { if(totals[c] > wScore){ wScore = totals[c]; winner = c; } });
+
+    out[dishKey] = {participants: cooks, categories: perCat, totals, winner, catWinners, voterCount: Object.keys(votersMap).length, eligibleCount: eligibleVoters(dishKey).length};
+  }
+  return out;
+}
+
+function votingComplete(dishKey, voteObj){
+  if(!state.contest) return false;
+  return state.contest.categories.every(cat => voteObj && voteObj[cat]);
+}
+
+/* ---------- rendering ---------- */
+function render(){
+  const app = document.getElementById('app');
+  if(state.loading){ app.innerHTML = '<div class="empty">Cargando…</div>'; return; }
+
+  let html = '';
+  html += header();
+  if(!state.me){ html += nameGate(); app.innerHTML = html; wireNameGate(); return; }
+
+  html += tabs();
+  html += '<div id="tabcontent">' + tabContent() + '</div>';
+  html += `<div class="footer-note">EL TABLÓN · cocinado por ${state.contest ? esc(state.contest.dishA.name)+' vs '+esc(state.contest.dishB.name) : 'nadie, todavía'}</div>`;
+  app.innerHTML = html;
+  wireAll();
+}
+
+function header(){
+  return `
+  <div class="hdr">
+    ${state.me ? `<button class="me-badge" id="whoami">Eres <b>${esc(state.me.name)}</b><br>cambiar</button>` : ''}
+    <div class="eyebrow">Concurso semanal</div>
+    <div class="title">El <em>Tablón</em></div>
+    <div class="subline">${state.contest ? esc(state.contest.label)+' — '+esc(state.contest.dishA.name)+' contra '+esc(state.contest.dishB.name) : 'Todavía no hay concurso esta semana.'}</div>
+  </div>`;
+}
+
+function nameGate(){
+  return `
+  <div class="card">
+    <h2>¿Quién eres?</h2>
+    <p class="help">Escribe tu nombre para participar. Lo recordaremos en este dispositivo.</p>
+    <div class="field">
+      <label>Tu nombre</label>
+      <input type="text" id="nameInput" placeholder="p. ej. Marta">
+    </div>
+    <button class="btn block" id="nameGo">Entrar</button>
+  </div>`;
+}
+function wireNameGate(){
+  const btn = document.getElementById('nameGo');
+  const inp = document.getElementById('nameInput');
+  const go = () => { const v = inp.value.trim(); if(v) setMe(v); };
+  btn.onclick = go;
+  inp.onkeydown = e => { if(e.key==='Enter') go(); };
+  inp.focus();
+}
+
+function tabs(){
+  const items = [
+    ['inicio','Inicio'],
+    ['participar','Participar'],
+    ['votar','Votar'],
+    ['resultados','Resultados'],
+    ['historial','Historial']
+  ];
+  return `<div class="tabs">${items.map(([k,l]) => `<div class="tab ${state.tab===k?'active':''}" data-tab="${k}">${l}</div>`).join('')}</div>`;
+}
+
+function tabContent(){
+  switch(state.tab){
+    case 'inicio': return inicioTab();
+    case 'participar': return participarTab();
+    case 'votar': return votarTab();
+    case 'resultados': return resultadosTab();
+    case 'historial': return historialTab();
+    default: return '';
+  }
+}
+
+/* --- INICIO --- */
+function inicioTab(){
+  let html = '';
+  if(!state.contest){
+    html += `
+    <div class="card">
+      <h2>Crear el concurso de esta semana</h2>
+      <p class="help">Define los dos platos y las 4 categorías por las que se votará. Después, cada compañero entra en "Participar" para decir si cocina o solo come.</p>
+      <div class="row2">
+        <div class="field"><label>Plato A</label><input type="text" id="dishA" placeholder="p. ej. Tortilla"></div>
+        <div class="field"><label>Plato B</label><input type="text" id="dishB" placeholder="p. ej. Guacamole"></div>
+      </div>
+      <h3>Categorías (4)</h3>
+      <div class="row2">
+        <div class="field"><input type="text" id="cat1" placeholder="Presentación"></div>
+        <div class="field"><input type="text" id="cat2" placeholder="Sabor"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><input type="text" id="cat3" placeholder="Sal"></div>
+        <div class="field"><input type="text" id="cat4" placeholder="Textura"></div>
+      </div>
+      <button class="btn block" id="createContestBtn">Empezar concurso</button>
+    </div>`;
+  } else {
+    const cooksA = cooksOf('a'), cooksB = cooksOf('b');
+    const eaters = Object.keys(state.participants).filter(n => state.participants[n]==='eat');
+    const total = Object.keys(state.participants).length;
+    html += `
+    <div class="card">
+      <h2>${esc(state.contest.label)}</h2>
+      <p class="help">${esc(state.contest.dishA.name)} vs ${esc(state.contest.dishB.name)} · categorías: ${state.contest.categories.map(esc).join(', ')}</p>
+      <div class="status-row"><span>Cocinan ${esc(state.contest.dishA.name)}</span><span class="n">${cooksA.length}</span></div>
+      <div class="status-row"><span>Cocinan ${esc(state.contest.dishB.name)}</span><span class="n">${cooksB.length}</span></div>
+      <div class="status-row"><span>Solo comen</span><span class="n">${eaters.length}</span></div>
+      <div class="status-row"><span>Total apuntados</span><span class="n">${total}</span></div>
+      <h3>Quién vota qué</h3>
+      <p class="help">${esc(state.contest.dishA.name)} lo votan ${eligibleVoters('a').length} personas (todos menos quienes lo cocinan). ${esc(state.contest.dishB.name)} lo votan ${eligibleVoters('b').length} personas.</p>
+      <div class="plist">
+        ${cooksA.map(n=>`<span class="pill a">${esc(n)} · ${esc(state.contest.dishA.name)}</span>`).join('')}
+        ${cooksB.map(n=>`<span class="pill b">${esc(n)} · ${esc(state.contest.dishB.name)}</span>`).join('')}
+        ${eaters.map(n=>`<span class="pill n">${esc(n)} · solo come</span>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Empezar una semana nueva</h3>
+      <p class="help">Esto archiva el resultado actual en el historial y abre un concurso nuevo.</p>
+      <button class="btn secondary" id="newWeekToggle">Nueva semana…</button>
+      <div id="newWeekForm" style="display:none;margin-top:16px;">
+        <div class="row2">
+          <div class="field"><label>Plato A</label><input type="text" id="dishA2" placeholder="p. ej. Croquetas"></div>
+          <div class="field"><label>Plato B</label><input type="text" id="dishB2" placeholder="p. ej. Empanada"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><input type="text" id="cat1b" placeholder="Presentación"></div>
+          <div class="field"><input type="text" id="cat2b" placeholder="Sabor"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><input type="text" id="cat3b" placeholder="Sal"></div>
+          <div class="field"><input type="text" id="cat4b" placeholder="Textura"></div>
+        </div>
+        <button class="btn block" id="createContestBtn2">Archivar y empezar</button>
+      </div>
+    </div>`;
+  }
+  return html;
+}
+
+/* --- PARTICIPAR --- */
+function participarTab(){
+  if(!state.contest){
+    return `<div class="card"><p class="empty">Todavía no hay concurso esta semana. Ve a "Inicio" para crearlo.</p></div>`;
+  }
+  const myRole = state.participants[state.me.name];
+  const roles = [
+    ['a', 'Cocino ' + state.contest.dishA.name, 'plato'],
+    ['b', 'Cocino ' + state.contest.dishB.name, 'plato'],
+    ['eat', 'Solo como', 'comensal']
+  ];
+  return `
+  <div class="card">
+    <h2>¿Cocinas o solo comes?</h2>
+    <p class="help">Elige una opción. Si cocinas, no podrás votar tu propio plato — sí el otro.</p>
+    <div class="choices">
+      ${roles.map(([key,label,tag]) => `
+        <div class="choice ${myRole===key?'sel':''}" data-role="${key}">
+          <span class="name">${esc(label)}</span>
+          <span class="tag">${tag}</span>
+        </div>`).join('')}
+    </div>
+    ${myRole ? `<p class="help">Apuntado como: <b style="color:var(--text)">${roles.find(r=>r[0]===myRole)[1]}</b>. Puedes cambiarlo mientras no haya empezado la votación.</p>` : ''}
+  </div>`;
+}
+
+/* --- VOTAR --- */
+function votarTab(){
+  if(!state.contest) return `<div class="card"><p class="empty">Todavía no hay concurso esta semana.</p></div>`;
+  const myRole = state.participants[state.me.name];
+  if(!myRole) return `<div class="card"><p class="empty">Primero dinos si cocinas o solo comes, en la pestaña "Participar".</p></div>`;
+
+  let html = '';
+  const dishes = [
+    ['a', state.contest.dishA.name],
+    ['b', state.contest.dishB.name]
+  ];
+  let any = false;
+  dishes.forEach(([dishKey, dishName]) => {
+    const canVote = myRole !== dishKey; // can't vote your own dish
+    if(!canVote) return;
+    any = true;
+    const cooks = cooksOf(dishKey);
+    if(cooks.length === 0){
+      html += `<div class="card"><h2>${esc(dishName)}</h2><p class="empty">Todavía nadie se ha apuntado a cocinar este plato.</p></div>`;
+      return;
+    }
+    const myVotes = (state.votes[dishKey][state.me.name]) || {};
+    html += `<div class="card"><h2>${esc(dishName)}</h2><p class="help">Ordena de mejor a peor en cada categoría. El primero se lleva ${cooks.length} puntos, el último 1.</p>`;
+    state.contest.categories.forEach(cat => {
+      const order = myVotes[cat] || cooks.slice(); // default order
+      html += renderScorecard(dishKey, cat, order, cooks.length);
+    });
+    html += `</div>`;
+  });
+  if(!any){
+    html += `<div class="card"><p class="empty">Al cocinar tu plato, no puedes votarlo. Vuelve cuando quieras ver los resultados.</p></div>`;
+  }
+  return html;
+}
+
+function renderScorecard(dishKey, cat, order, n){
+  const rows = order.map((name, idx) => {
+    const score = n - idx;
+    return `
+    <div class="rank-item" data-dish="${dishKey}" data-cat="${esc(cat)}" data-name="${esc(name)}">
+      <span class="score">${score}</span>
+      <span class="nm">${esc(name)}</span>
+      <span class="arrows">
+        <button class="arrow-btn" data-act="up" ${idx===0?'disabled':''}>▲</button>
+        <button class="arrow-btn" data-act="down" ${idx===order.length-1?'disabled':''}>▼</button>
+      </span>
+    </div>`;
+  }).join('');
+  return `<div class="scorecard" data-dish="${dishKey}" data-cat="${esc(cat)}"><div class="cat">${esc(cat)}</div>${rows}</div>`;
+}
+
+/* --- RESULTADOS --- */
+function resultadosTab(){
+  if(!state.contest) return `<div class="card"><p class="empty">Todavía no hay concurso esta semana.</p></div>`;
+  const res = computeResults();
+  let html = '';
+  [['a', state.contest.dishA.name], ['b', state.contest.dishB.name]].forEach(([dishKey, dishName]) => {
+    const r = res[dishKey];
+    if(r.participants.length === 0){
+      html += `<div class="card dish-block"><div class="dish-title"><h3>${esc(dishName)}</h3></div><p class="empty">Nadie se ha apuntado a cocinar este plato todavía.</p></div>`;
+      return;
+    }
+    const pct = r.eligibleCount ? Math.round(100*r.voterCount/r.eligibleCount) : 0;
+    html += `<div class="card dish-block">
+      <div class="dish-title"><h3>${esc(dishName)}</h3><span class="badge-count">${r.voterCount}/${r.eligibleCount} han votado</span></div>
+      <div class="progress-bar"><div style="width:${pct}%"></div></div>
+      ${r.winner ? `<p style="margin-top:14px" class="ribbon">${trophySvg()} Ganador: ${esc(r.winner)}</p>` : ''}
+      <table>
+        <thead><tr><th>Cocinero/a</th>${state.contest.categories.map(c=>`<th class="num">${esc(c)}</th>`).join('')}<th class="num">Total</th></tr></thead>
+        <tbody>
+          ${r.participants
+            .slice()
+            .sort((x,y)=> r.totals[y]-r.totals[x])
+            .map(name => `
+            <tr class="${name===r.winner?'winner':''}">
+              <td>${esc(name)}${name===r.winner?'<span class="medal">GANADOR</span>':''}</td>
+              ${state.contest.categories.map(cat => {
+                const isCatWinner = r.catWinners[cat]===name && r.categories[cat][name] > 0;
+                return `<td class="num">${r.categories[cat][name]}${isCatWinner?'<span class="medal cat">'+esc(cat)+'</span>':''}</td>`;
+              }).join('')}
+              <td class="num total-col">${r.totals[name]}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  });
+  return html;
+}
+
+function trophySvg(){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a2 2 0 0 0 2 4M17 5h3a2 2 0 0 1-2 4"/></svg>`;
+}
+
+/* --- HISTORIAL --- */
+function historialTab(){
+  if(!state.history.length) return `<div class="card"><p class="empty">Todavía no hay semanas archivadas.</p></div>`;
+  return `<div class="card"><h2>Historial</h2>
+    ${state.history.map(h => `
+      <div class="history-item">
+        <div class="wk">${esc(h.label)}</div>
+        <div class="win">🏆 ${esc(h.dishA)}: <b>${h.winnerA?esc(h.winnerA):'—'}</b> &nbsp;·&nbsp; ${esc(h.dishB)}: <b>${h.winnerB?esc(h.winnerB):'—'}</b></div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ---------- wiring ---------- */
+function wireAll(){
+  document.querySelectorAll('.tab').forEach(t => t.onclick = () => { state.tab = t.dataset.tab; render(); });
+  const whoami = document.getElementById('whoami');
+  if(whoami) whoami.onclick = () => { if(confirm('¿Cambiar de usuario en este dispositivo?')) forgetMe(); };
+
+  // inicio: create contest
+  const createBtn = document.getElementById('createContestBtn');
+  if(createBtn) createBtn.onclick = () => {
+    const a = document.getElementById('dishA').value.trim();
+    const b = document.getElementById('dishB').value.trim();
+    const cats = ['cat1','cat2','cat3','cat4'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
+    if(!a || !b){ alert('Pon el nombre de los dos platos.'); return; }
+    if(cats.length < 2){ alert('Añade al menos 2 categorías.'); return; }
+    createContest(a,b,cats);
+  };
+  const toggle = document.getElementById('newWeekToggle');
+  if(toggle) toggle.onclick = () => {
+    const f = document.getElementById('newWeekForm');
+    f.style.display = f.style.display==='none' ? 'block' : 'none';
+  };
+  const createBtn2 = document.getElementById('createContestBtn2');
+  if(createBtn2) createBtn2.onclick = () => {
+    const a = document.getElementById('dishA2').value.trim();
+    const b = document.getElementById('dishB2').value.trim();
+    const cats = ['cat1b','cat2b','cat3b','cat4b'].map(id => document.getElementById(id).value.trim()).filter(Boolean);
+    if(!a || !b){ alert('Pon el nombre de los dos platos.'); return; }
+    if(cats.length < 2){ alert('Añade al menos 2 categorías.'); return; }
+    createContest(a,b,cats);
+  };
+
+  // participar: role choice
+  document.querySelectorAll('.choice').forEach(c => c.onclick = () => joinAs(c.dataset.role));
+
+  // votar: arrows
+  document.querySelectorAll('.scorecard').forEach(card => {
+    const dishKey = card.dataset.dish, cat = card.dataset.cat;
+    card.querySelectorAll('.arrow-btn').forEach(btn => {
+      btn.onclick = () => {
+        const item = btn.closest('.rank-item');
+        const items = Array.from(card.querySelectorAll('.rank-item'));
+        const idx = items.indexOf(item);
+        const swapWith = btn.dataset.act === 'up' ? idx-1 : idx+1;
+        if(swapWith < 0 || swapWith >= items.length) return;
+        const names = items.map(i => i.dataset.name);
+        [names[idx], names[swapWith]] = [names[swapWith], names[idx]];
+        saveRanking(dishKey, cat, names).then(render);
+      };
+    });
+  });
+}
+
+/* ---------- boot + polling ---------- */
+loadAll();
+setInterval(() => {
+  const el = document.activeElement;
+  const typing = el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA');
+  if(!state.loading && !typing) loadAll();
+}, 6000);
+</script>
+</body>
+</html>
