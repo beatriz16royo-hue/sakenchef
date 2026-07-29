@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saken Chef</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,600&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0C0C0D;
+    --bg-2: #1D1310;
+    --card: #FFFBF5;
+    --ink: #221A12;
+    --ink-soft: #6b5a48;
+    --chalk: #F3EDE4;
+    --chalk-dim: #b4a99c;
+    --gold: #FFB347;
+    --red: #FF6A1A;
+    --sage: #8a7f74;
+    --line: rgba(255,178,80,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 18% 8%, rgba(255,122,26,0.22), transparent 32%),
+      radial-gradient(circle at 82% 4%, rgba(255,106,26,0.14), transparent 34%),
+      radial-gradient(circle at 50% 100%, rgba(255,106,26,0.10), transparent 45%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 42px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 42px),
+      linear-gradient(180deg, #0c0c0d, #171110 55%, #0c0c0d);
+    background-color:#0c0c0d;
+    color:var(--chalk);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    padding-bottom:60px;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 0;}
+  header.top{text-align:center;margin-bottom:22px;}
+  .logo-badge{margin:0 auto 10px;display:block;filter:drop-shadow(0 6px 18px rgba(255,106,26,0.35));}
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-size:11px;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(30px,6vw,46px);
+    margin:0 0 6px;
+    line-height:1.05;
+    letter-spacing:.01em;
+  }
+  .sub{color:var(--chalk-dim);font-size:14.5px;max-width:480px;margin:0 auto;}
+  .weeklabel{
+    font-family:'Space Mono',monospace;
+    font-size:13px;
+    color:var(--gold);
+    margin-top:10px;
+  }
+
+  nav.rail{
+    display:flex;gap:8px;justify-content:center;flex-wrap:wrap;
+    margin:26px 0 22px;
+  }
+  .tab{
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    letter-spacing:.03em;
+    background:var(--bg-2);
+    color:var(--chalk-dim);
+    border:1px solid var(--line);
+    border-radius:3px 3px 0 0;
+    padding:9px 14px 8px;
+    cursor:pointer;
+    position:relative;
+    top:1px;
+  }
+  .tab:hover{color:var(--chalk);}
+  .tab.active{
+    background:var(--card);
+    color:var(--ink);
+    border-color:var(--card);
+    font-weight:700;
+  }
+
+  .ticket{
+    background:var(--card);
+    color:var(--ink);
+    border-radius:6px;
+    padding:26px 24px;
+    margin-bottom:22px;
+    position:relative;
+    box-shadow:0 12px 30px rgba(0,0,0,0.28);
+  }
+  .ticket::before,.ticket::after{
+    content:"";
+    position:absolute;
+    width:16px;height:16px;
+    background:var(--bg);
+    border-radius:50%;
+    top:50%;transform:translateY(-50%);
+  }
+  .ticket::before{left:-8px;}
+  .ticket::after{right:-8px;}
+  .ticket h2{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    margin:0 0 4px;
+  }
+  .ticket .desc{color:var(--ink-soft);font-size:13.5px;margin-bottom:18px;}
+
+  label{
+    display:block;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+    margin-top:16px;
+  }
+  input[type=text], textarea, select{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:15px;
+    padding:10px 12px;
+    border:1.5px solid #ddd6c4;
+    border-radius:4px;
+    background:#fff;
+    color:var(--ink);
+  }
+  textarea{resize:vertical;min-height:90px;font-family:'Space Mono',monospace;font-size:13px;}
+
+  button{
+    font-family:'Space Mono',monospace;
+    font-size:13px;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    border:none;
+    border-radius:4px;
+    padding:11px 18px;
+    cursor:pointer;
+    font-weight:700;
+    transition:transform .08s ease;
+  }
+  button:active{transform:scale(0.97);}
+  .btn-primary{background:var(--red);color:var(--card);}
+  .btn-primary:hover{background:#992f24;}
+  .btn-gold{background:var(--gold);color:#3a2a06;}
+  .btn-gold:hover{background:#c4941f;}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1.5px solid #ddd6c4;}
+  .btn-ghost:hover{border-color:var(--ink-soft);color:var(--ink);}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+
+  .role-grid{display:grid;gap:10px;margin-top:10px;}
+  .role-opt{
+    border:1.5px solid #ddd6c4;
+    border-radius:5px;
+    padding:14px;
+    cursor:pointer;
+  }
+  .role-opt:hover{border-color:var(--red);}
+  .role-opt b{display:block;font-family:'Fraunces',serif;font-size:16px;}
+  .role-opt span{font-size:12.5px;color:var(--ink-soft);}
+
+  .pill{
+    display:inline-block;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    padding:3px 9px;
+    border-radius:20px;
+    background:var(--sage);
+    color:#10160f;
+    font-weight:700;
+  }
+  .pill.red{background:var(--red);color:#fff;}
+  .pill.gold{background:var(--gold);color:#3a2a06;}
+
+  .rank-cat{margin-top:20px;border-top:1px dashed #ddd6c4;padding-top:14px;}
+  .rank-cat h4{
+    font-family:'Fraunces',serif;
+    font-size:15px;
+    margin:0 0 10px;
+  }
+  .rank-row{
+    display:flex;align-items:center;gap:10px;
+    background:#fff;
+    border:1px solid #ece5d3;
+    border-radius:4px;
+    padding:8px 10px;
+    margin-bottom:6px;
+  }
+  .rank-num{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    color:var(--red);
+    width:22px;
+  }
+  .rank-name{flex:1;font-size:14px;}
+  .rank-arrows{display:flex;gap:4px;}
+  .arrow-btn{
+    background:#f1ecdd;color:var(--ink);
+    border:none;border-radius:3px;
+    width:26px;height:26px;
+    font-size:13px;line-height:1;
+    padding:0;cursor:pointer;
+  }
+  .arrow-btn:disabled{opacity:.25;cursor:default;}
+
+  table.score{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+  table.score th{
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;
+    text-align:left;color:var(--ink-soft);border-bottom:1.5px solid var(--ink);
+    padding:6px 6px;
+  }
+  table.score td{padding:7px 6px;border-bottom:1px solid #ece5d3;}
+  table.score tr.winner td{font-weight:700;}
+  .stamp{
+    display:inline-block;
+    font-family:'Space Mono',monospace;
+    font-size:9.5px;
+    font-weight:700;
+    color:var(--gold);
+    border:1.5px solid var(--gold);
+    border-radius:3px;
+    padding:1px 6px;
+    transform:rotate(-4deg);
+    margin-left:6px;
+  }
+  .progress-line{font-family:'Space Mono',monospace;font-size:11.5px;color:var(--ink-soft);margin-top:6px;}
+  .muted{color:var(--chalk-dim);font-size:13px;}
+  .empty{
+    text-align:center;padding:30px 10px;color:var(--ink-soft);font-size:14px;
+  }
+  .name-screen{
+    max-width:380px;margin:80px auto;text-align:center;
+  }
+  .who{
+    position:fixed;top:12px;right:14px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;color:var(--chalk-dim);
+    background:rgba(0,0,0,0.25);
+    padding:5px 10px;border-radius:20px;
+  }
+  .cat-list-input{margin-top:8px;}
+  .cat-line{display:flex;gap:6px;margin-bottom:6px;}
+  .cat-line input{flex:1;}
+  .small-x{
+    background:transparent;color:var(--red);border:none;font-size:16px;cursor:pointer;padding:0 6px;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ---------- Estado ---------- */
+const S = {
+  user: null,
+  contest: null,
+  history: [],
+  draft: {},        // draft[dishId][category] = [names ordered mejor->peor]
+  editingDish: null, // dishId being edited/voted right now
+  tab: 'inicio',
+  isAdmin: false,
+  loaded:false,
+  flash: null,          // {text, type}
+  confirmReset: false,
+  confirmClose: false
+};
+
+const CATS_DEFAULT = ["Presentación","Sabor","Sal","Textura"];
+
+/* Emblema original (corona de llamas + "S"), inspirado en la estética de
+   concursos de cocina, sin copiar ningún logo de marca registrada. */
+const LOGO_SVG = `
+<svg class="logo-badge" width="76" height="76" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFC978"/>
+      <stop offset="100%" stop-color="#FF6A1A"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <path id="flameShape" d="M60 3 C67 16 71 23 65 31 C62 35 58 35 55 31 C49 23 53 16 60 3 Z" fill="url(#flameGrad)"/>
+    <use href="#flameShape" transform="rotate(30 60 60)"/>
+    <use href="#flameShape" transform="rotate(60 60 60)"/>
+    <use href="#flameShape" transform="rotate(90 60 60)"/>
+    <use href="#flameShape" transform="rotate(120 60 60)"/>
+    <use href="#flameShape" transform="rotate(150 60 60)"/>
+    <use href="#flameShape" transform="rotate(180 60 60)"/>
+    <use href="#flameShape" transform="rotate(210 60 60)"/>
+    <use href="#flameShape" transform="rotate(240 60 60)"/>
+    <use href="#flameShape" transform="rotate(270 60 60)"/>
+    <use href="#flameShape" transform="rotate(300 60 60)"/>
+    <use href="#flameShape" transform="rotate(330 60 60)"/>
+  </g>
+  <circle cx="60" cy="60" r="33" fill="#0c0c0d" stroke="#FF6A1A" stroke-width="3"/>
+  <text x="60" y="76" text-anchor="middle" font-family="Fraunces, serif" font-weight="700" font-size="46" fill="#FFB347">S</text>
+</svg>`;
+
+/* Cambia este PIN para controlar quién puede crear/gestionar el concurso. */
+const ADMIN_PIN = 'SAKENCHEF';
+
+/* ---------- Storage helpers ---------- */
+async function getContest(){
+  try{
+    const r = await window.storage.get('contest', true);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){ return null; }
+}
+async function saveContest(c){
+  await window.storage.set('contest', JSON.stringify(c), true);
+  S.contest = c;
+}
+async function getHistory(){
+  try{
+    const r = await window.storage.get('history', true);
+    return r ? JSON.parse(r.value) : [];
+  }catch(e){ return []; }
+}
+async function saveHistory(h){
+  await window.storage.set('history', JSON.stringify(h), true);
+  S.history = h;
+}
+
+async function refresh(){
+  const activeTag = document.activeElement && document.activeElement.tagName;
+  if(activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT'){
+    return; // no interrumpir mientras alguien está escribiendo o eligiendo algo
+  }
+  const c = await getContest();
+  S.contest = c;
+  S.loaded = true;
+  render();
+}
+
+async function getIsAdmin(){
+  try{
+    const r = await window.storage.get('isAdmin', false);
+    return r ? JSON.parse(r.value) : false;
+  }catch(e){ return false; }
+}
+async function setIsAdminFlag(v){
+  await window.storage.set('isAdmin', JSON.stringify(v), false);
+  S.isAdmin = v;
+}
+function checkPin(pin){
+  if((pin||'').trim() === ADMIN_PIN){
+    S.flash = null;
+    setIsAdminFlag(true).then(render);
+  } else {
+    flash('PIN incorrecto.');
+  }
+}
+function lockAdmin(){
+  setIsAdminFlag(false).then(render);
+}
+function flash(text, type='error'){
+  S.flash = { text, type };
+  render();
+}
+function dismissFlash(){
+  S.flash = null;
+  render();
+}
+
+/* ---------- Acciones ---------- */
+let pollTimer = null;
+async function setUser(name){
+  name = (name||'').trim();
+  if(!name) return;
+  S.user = name;
+  S.isAdmin = await getIsAdmin();
+  refresh();
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(refresh, 6000);
+}
+
+function logoutUser(){
+  if(pollTimer){ clearInterval(pollTimer); pollTimer = null; }
+  S.user = null;
+  S.tab = 'inicio';
+  S.editingDish = null;
+  S.draft = {};
+  S.flash = null;
+  render();
+}
+
+function goHome(){
+  S.tab = 'inicio';
+  S.editingDish = null;
+  S.flash = null;
+  render();
+}
+
+async function createWeek(dish1, dish2, cats1, cats2){
+  if(!S.isAdmin){ flash('Solo la administradora puede crear el concurso.'); return; }
+  dish1 = dish1.trim(); dish2 = dish2.trim();
+  cats1 = cats1.map(c=>c.trim()).filter(Boolean);
+  cats2 = cats2.map(c=>c.trim()).filter(Boolean);
+  if(!dish1 || !dish2 || cats1.length===0 || cats2.length===0){ flash('Rellena ambos platos y al menos una categoría para cada uno.'); return; }
+  const contest = {
+    weekLabel: 'Semana del ' + new Date().toLocaleDateString('es-ES', {day:'2-digit', month:'long'}),
+    dishes: [
+      {id:'d1', name:dish1, categories:cats1},
+      {id:'d2', name:dish2, categories:cats2}
+    ],
+    participants: {},
+    votes: {}
+  };
+  await saveContest(contest);
+  render();
+}
+
+/* Categorías de un plato, con compatibilidad hacia versiones antiguas que
+   guardaban una única lista de categorías compartida (c.categories). */
+function dishCategories(dish, c){
+  if(dish && dish.categories && dish.categories.length) return dish.categories;
+  if(c && c.categories && c.categories.length) return c.categories;
+  return CATS_DEFAULT;
+}
+
+async function registerRole(role, dishId){
+  const c = S.contest;
+  c.participants[S.user] = { role, dishId: role==='cook' ? dishId : null };
+  await saveContest(c);
+  render();
+}
+
+async function clearMyRole(){
+  const c = S.contest;
+  delete c.participants[S.user];
+  await saveContest(c);
+  render();
+}
+
+async function adminAddParticipant(name, roleValue){
+  name = (name||'').trim();
+  if(!name){ flash('Escribe un nombre.'); return; }
+  const c = S.contest;
+  if(c.participants[name]){ flash('Ya hay un participante con ese nombre.'); return; }
+  let role, dishId;
+  if(roleValue === 'eater'){ role='eater'; dishId=null; }
+  else { role='cook'; dishId = roleValue.split(':')[1]; }
+  c.participants[name] = { role, dishId };
+  await saveContest(c);
+  flash('Participante añadido.', 'info');
+}
+
+async function adminRemoveParticipant(name){
+  const c = S.contest;
+  delete c.participants[name];
+  delete c.votes[name];
+  await saveContest(c);
+  flash('Participante eliminado (y sus votos, si había emitido alguno).', 'info');
+}
+
+function dishEntries(c, dishId){
+  return Object.entries(c.participants)
+    .filter(([n,p])=> p.role==='cook' && p.dishId===dishId)
+    .map(([n])=>n);
+}
+
+/* Códigos anónimos por plato: A1, A2... para el plato d1, B1, B2... para el d2.
+   El orden es el orden en que la gente se apuntó a cocinar ese plato. */
+function anonMapFor(entries, dishId){
+  const letter = dishId==='d1' ? 'A' : 'B';
+  const map = {};
+  entries.forEach((name, idx)=> map[name] = letter + (idx+1));
+  return map;
+}
+
+function dishesToVote(c){
+  const me = c.participants[S.user];
+  if(!me) return [];
+  return c.dishes.filter(d=>{
+    const entries = dishEntries(c, d.id);
+    if(entries.length===0) return false;
+    if(me.role==='cook' && me.dishId===d.id) return false;
+    return true;
+  });
+}
+
+function startVote(dishId){
+  const c = S.contest;
+  const dish = c.dishes.find(x=>x.id===dishId);
+  const cats = dishCategories(dish, c);
+  const entries = dishEntries(c, dishId);
+  const existing = (c.votes[S.user] && c.votes[S.user][dishId]) || null;
+  const draft = {};
+  cats.forEach(cat=>{
+    if(existing && existing[cat] && existing[cat].every(n=>entries.includes(n))){
+      draft[cat] = existing[cat].slice();
+    } else {
+      draft[cat] = entries.slice();
+    }
+  });
+  S.draft[dishId] = draft;
+  S.editingDish = dishId;
+  render();
+}
+
+function cancelVote(){
+  S.editingDish = null;
+  render();
+}
+
+function moveEntry(dishId, cat, idx, dir){
+  const arr = S.draft[dishId][cat];
+  const j = idx + dir;
+  if(j<0 || j>=arr.length) return;
+  [arr[idx], arr[j]] = [arr[j], arr[idx]];
+  render();
+}
+
+async function submitVote(dishId){
+  const c = S.contest;
+  c.votes[S.user] = c.votes[S.user] || {};
+  c.votes[S.user][dishId] = S.draft[dishId];
+  await saveContest(c);
+  S.editingDish = null;
+  render();
+}
+
+function computeScores(c, dishId){
+  const dish = c.dishes.find(x=>x.id===dishId);
+  const cats = dishCategories(dish, c);
+  const entries = dishEntries(c, dishId);
+  const N = entries.length;
+  const totals = {};
+  entries.forEach(e=>{
+    totals[e] = { cat:{}, total:0 };
+    cats.forEach(cat=> totals[e].cat[cat]=0);
+  });
+  let voteCount = 0;
+  Object.entries(c.votes).forEach(([voter, byDish])=>{
+    const v = byDish[dishId];
+    if(!v) return;
+    voteCount++;
+    cats.forEach(cat=>{
+      const order = v[cat];
+      if(!order) return;
+      order.forEach((name, idx)=>{
+        if(totals[name]===undefined) return;
+        const points = N - idx;
+        totals[name].cat[cat] += points;
+        totals[name].total += points;
+      });
+    });
+  });
+  const expectedVoters = Object.entries(c.participants).filter(([n,p])=>{
+    if(p.role==='cook' && p.dishId===dishId) return false;
+    return true;
+  }).length;
+  return { entries, N, totals, voteCount, expectedVoters, cats };
+}
+
+function requestCloseWeek(){
+  if(!S.isAdmin){ flash('Solo la administradora puede cerrar la semana.'); return; }
+  S.confirmClose = true;
+  render();
+}
+function cancelCloseWeek(){
+  S.confirmClose = false;
+  render();
+}
+async function doCloseWeek(){
+  const h = await getHistory();
+  h.unshift(S.contest);
+  await saveHistory(h);
+  await window.storage.delete('contest', true);
+  S.contest = null;
+  S.confirmClose = false;
+  render();
+}
+
+function requestResetVotes(){
+  if(!S.isAdmin){ flash('Solo la administradora puede reiniciar el concurso.'); return; }
+  S.confirmReset = true;
+  render();
+}
+function cancelResetVotes(){
+  S.confirmReset = false;
+  render();
+}
+async function doResetVotes(){
+  const c = S.contest;
+  c.participants = {};
+  c.votes = {};
+  await saveContest(c);
+  S.confirmReset = false;
+  flash('Participantes y votos reiniciados. Los platos y categorías se mantienen.', 'info');
+}
+
+async function saveContestMeta(dish1, dish2, cats1, cats2){
+  dish1 = dish1.trim(); dish2 = dish2.trim();
+  cats1 = cats1.map(x=>x.trim()).filter(Boolean);
+  cats2 = cats2.map(x=>x.trim()).filter(Boolean);
+  if(!dish1 || !dish2 || cats1.length===0 || cats2.length===0){ flash('Rellena ambos platos y al menos una categoría para cada uno.'); return; }
+  const c = S.contest;
+  c.dishes[0].name = dish1; c.dishes[0].categories = cats1;
+  c.dishes[1].name = dish2; c.dishes[1].categories = cats2;
+  await saveContest(c);
+  flash('Platos y categorías actualizados.', 'info');
+}
+
+function setTab(t){ S.tab = t; render(); }
+
+/* ---------- Render ---------- */
+function render(){
+  const app = document.getElementById('app');
+  if(!S.user){
+    app.innerHTML = renderNameScreen();
+    bindNameScreen();
+    return;
+  }
+  if(!S.loaded){
+    app.innerHTML = `<div class="wrap"><div class="empty">Cargando…</div></div>`;
+    return;
+  }
+  let html = `<div class="who">👤 ${escapeHtml(S.user)} &nbsp;·&nbsp; <span id="homeBtn" style="cursor:pointer;text-decoration:underline;">🏠 Inicio</span> &nbsp;·&nbsp; <span id="logoutBtn" style="cursor:pointer;text-decoration:underline;">Cambiar usuario</span></div><div class="wrap">`;
+  html += renderHeader();
+
+  if(S.flash){
+    html += `<div class="ticket" style="border:2px solid ${S.flash.type==='info'?'var(--sage)':'var(--red)'};">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+        <span style="font-size:14px;">${escapeHtml(S.flash.text)}</span>
+        <span id="dismissFlashBtn" style="cursor:pointer;font-weight:700;">×</span>
+      </div>
+    </div>`;
+  }
+
+  if(!S.contest){
+    html += renderSetup();
+  } else {
+    html += renderTabs();
+    if(S.tab==='inicio') html += renderInicio();
+    if(S.tab==='panel') html += renderPanel();
+    if(S.tab==='votar') html += renderVotar();
+    if(S.tab==='resultados') html += renderResultados();
+    if(S.tab==='admin' && S.isAdmin) html += renderAdmin();
+  }
+  html += `</div>`;
+  app.innerHTML = html;
+  bindAppEvents();
+}
+
+function renderNameScreen(){
+  return `
+  <div class="name-screen">
+    ${LOGO_SVG}
+    <div class="eyebrow">Concurso de cocina de oficina</div>
+    <h1 style="margin-bottom:14px;">SAKEN CHEF</h1>
+    <p class="sub" style="margin-bottom:20px;">Escribe tu nombre para entrar a la semana en curso.</p>
+    <input id="nameInput" type="text" placeholder="Tu nombre" style="text-align:center;">
+    <div class="btn-row" style="justify-content:center;">
+      <button class="btn-primary" id="nameBtn">Entrar</button>
+    </div>
+  </div>`;
+}
+function bindNameScreen(){
+  const btn = document.getElementById('nameBtn');
+  const inp = document.getElementById('nameInput');
+  btn.onclick = ()=> setUser(inp.value);
+  inp.onkeydown = (e)=>{ if(e.key==='Enter') setUser(inp.value); };
+  inp.focus();
+}
+
+function renderHeader(){
+  return `
+  <header class="top">
+    ${LOGO_SVG}
+    <div class="eyebrow">Concurso de cocina de oficina</div>
+    <h1>SAKEN CHEF</h1>
+    <p class="sub">Cocina, vota y descubre quién se lleva el delantal esta semana.</p>
+    ${S.contest ? `<div class="weeklabel">${escapeHtml(S.contest.weekLabel)} · ${escapeHtml(S.contest.dishes[0].name)} vs ${escapeHtml(S.contest.dishes[1].name)}</div>` : ''}
+  </header>`;
+}
+
+function renderSetup(){
+  if(!S.isAdmin){
+    return `
+    <div class="ticket">
+      <h2>Todavía no hay concurso esta semana</h2>
+      <div class="desc">Solo la administradora puede crear el concurso. Si eres tú, entra con el PIN abajo.</div>
+      ${adminGateHtml()}
+    </div>`;
+  }
+  return `
+  <div class="ticket">
+    <h2>Configurar la semana</h2>
+    <div class="desc">Todavía no hay ningún concurso abierto. Define los dos platos y las categorías de puntuación de cada uno.</div>
+    <label>Plato 1</label>
+    <input type="text" id="dish1" placeholder="Ej. Tortilla">
+    <label>Categorías del plato 1 (una por línea)</label>
+    <textarea id="cats1">${CATS_DEFAULT.join('\n')}</textarea>
+    <label>Plato 2</label>
+    <input type="text" id="dish2" placeholder="Ej. Guacamole">
+    <label>Categorías del plato 2 (una por línea)</label>
+    <textarea id="cats2">${CATS_DEFAULT.join('\n')}</textarea>
+    <div class="btn-row">
+      <button class="btn-primary" id="createBtn">Crear semana</button>
+    </div>
+  </div>`;
+}
+
+function adminGateHtml(){
+  if(S.isAdmin){
+    return `<div class="btn-row"><span class="pill gold">ADMINISTRADORA</span><button class="btn-ghost" id="lockAdminBtn">Salir del modo admin</button></div>`;
+  }
+  return `
+  <div class="btn-row" style="align-items:center;">
+    <input type="text" id="pinInput" placeholder="PIN de administradora" style="max-width:220px;">
+    <button class="btn-ghost" id="submitPinBtn">Entrar como admin</button>
+  </div>`;
+}
+
+function renderTabs(){
+  const tabs = [
+    ['inicio','Inicio'],
+    ['panel','Mi participación'],
+    ['votar','Votar'],
+    ['resultados','Resultados']
+  ];
+  if(S.isAdmin) tabs.push(['admin','Admin']);
+  return `<nav class="rail">
+    ${tabs.map(([id,label])=>`<div class="tab ${S.tab===id?'active':''}" data-tab="${id}">${label}</div>`).join('')}
+  </nav>`;
+}
+
+function renderInicio(){
+  const c = S.contest;
+  const cats1 = dishCategories(c.dishes[0], c);
+  const cats2 = dishCategories(c.dishes[1], c);
+  let html = '';
+  html += `<div class="ticket">
+    <h2>${escapeHtml(c.weekLabel)}</h2>
+    <div class="desc">
+      ${escapeHtml(c.dishes[0].name)} (${cats1.map(escapeHtml).join(', ')})<br>
+      ${escapeHtml(c.dishes[1].name)} (${cats2.map(escapeHtml).join(', ')})
+    </div>
+    ${adminGateHtml()}
+  </div>`;
+
+  const entries = Object.entries(c.participants);
+  html += `
+  <div class="ticket">
+    <h2>Quién participa</h2>
+    <div class="desc">${entries.length} persona${entries.length===1?'':'s'} registrada${entries.length===1?'':'s'} esta semana.</div>
+    ${entries.length? `<ul style="padding-left:18px;">
+      ${entries.map(([n,p])=>`<li style="margin-bottom:4px;">${escapeHtml(n)} — ${p.role==='cook' ? 'cocina '+escapeHtml(c.dishes.find(d=>d.id===p.dishId).name) : 'come y vota'}</li>`).join('')}
+    </ul>` : `<div class="empty">Nadie se ha registrado todavía.</div>`}
+  </div>`;
+
+  if(S.isAdmin){
+    html += `<div class="desc" style="text-align:center;">Reiniciar el concurso, editar platos/categorías y ver el detalle de votos están en la pestaña <b>Admin</b>.</div>`;
+  }
+  return html;
+}
+
+function renderPanel(){
+  const c = S.contest;
+  const me = c.participants[S.user];
+  let html = '';
+  if(!me){
+    html += `
+    <div class="ticket">
+      <h2>¿Qué haces esta semana?</h2>
+      <div class="desc">Elige si cocinas (y qué plato) o si solo vas a comer y votar.</div>
+      <div class="role-grid">
+        <div class="role-opt" data-role="cook" data-dish="d1">
+          <b>Cocino — ${escapeHtml(c.dishes[0].name)}</b>
+          <span>Presentas tu versión de este plato.</span>
+        </div>
+        <div class="role-opt" data-role="cook" data-dish="d2">
+          <b>Cocino — ${escapeHtml(c.dishes[1].name)}</b>
+          <span>Presentas tu versión de este plato.</span>
+        </div>
+        <div class="role-opt" data-role="eater" data-dish="">
+          <b>Solo como</b>
+          <span>Puedes votar en ambos platos.</span>
+        </div>
+      </div>
+    </div>`;
+  } else {
+    const dishName = me.role==='cook' ? c.dishes.find(d=>d.id===me.dishId).name : null;
+    html += `
+    <div class="ticket">
+      <h2>Tu participación</h2>
+      <p style="font-size:15px;">
+        ${me.role==='cook'
+          ? `Cocinas <span class="pill red">${escapeHtml(dishName)}</span>`
+          : `Solo comes <span class="pill">puedes votar en todo</span>`}
+      </p>
+      <div class="desc" style="margin-top:10px;">Puedes votar en los platos que no has cocinado, desde la pestaña «Votar».</div>
+      <div class="btn-row">
+        <button class="btn-ghost" id="changeRoleBtn">Cambiar mi elección</button>
+      </div>
+    </div>`;
+  }
+  return html;
+}
+
+function renderVotar(){
+  const c = S.contest;
+  const me = c.participants[S.user];
+  if(!me){
+    return `<div class="ticket"><div class="empty">Primero dinos qué haces esta semana en «Mi participación».</div></div>`;
+  }
+  const toVote = dishesToVote(c);
+  if(toVote.length===0){
+    return `<div class="ticket"><div class="empty">No tienes platos pendientes de votar (o todavía nadie se ha apuntado como cocinero).</div></div>`;
+  }
+  let html = '';
+  toVote.forEach(d=>{
+    const entries = dishEntries(c, d.id);
+    const map = anonMapFor(entries, d.id);
+    const already = c.votes[S.user] && c.votes[S.user][d.id];
+    if(S.editingDish === d.id){
+      html += renderVoteForm(d, entries);
+    } else {
+      html += `
+      <div class="ticket">
+        <h2>${escapeHtml(d.name)} ${already ? '<span class="pill">votado</span>' : ''}</h2>
+        <div class="desc">${entries.length} versione${entries.length===1?'':'s'} a catar: ${entries.map(n=>map[n]).join(', ')} (busca esos números en los platos de verdad).</div>
+        <div class="btn-row">
+          <button class="btn-primary" data-startvote="${d.id}">${already ? 'Editar mi voto' : 'Votar'}</button>
+        </div>
+      </div>`;
+    }
+  });
+  return html;
+}
+
+function renderVoteForm(d, entries){
+  const draft = S.draft[d.id];
+  const cats = dishCategories(d, S.contest);
+  const map = anonMapFor(entries, d.id);
+  let html = `
+  <div class="ticket">
+    <h2>Votar — ${escapeHtml(d.name)}</h2>
+    <div class="desc">Ordena de mejor a peor en cada categoría por su número (no ves nombres: la cata es anónima). La primera posición se lleva ${entries.length} puntos, la última 1.</div>`;
+  cats.forEach(cat=>{
+    const arr = draft[cat];
+    html += `
+    <div class="rank-cat">
+      <h4>${escapeHtml(cat)}</h4>
+      ${arr.map((name, idx)=>`
+        <div class="rank-row">
+          <div class="rank-num">${arr.length-idx}</div>
+          <div class="rank-name">${escapeHtml(map[name] || name)}</div>
+          <div class="rank-arrows">
+            <button class="arrow-btn" ${idx===0?'disabled':''} data-move="${d.id}|${escapeAttr(cat)}|${idx}|-1">↑</button>
+            <button class="arrow-btn" ${idx===arr.length-1?'disabled':''} data-move="${d.id}|${escapeAttr(cat)}|${idx}|1">↓</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  });
+  html += `
+    <div class="btn-row">
+      <button class="btn-primary" data-submitvote="${d.id}">Guardar voto</button>
+      <button class="btn-ghost" id="cancelVoteBtn">Cancelar</button>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderResultados(){
+  const c = S.contest;
+  let html = '';
+  c.dishes.forEach(d=>{
+    const entries = dishEntries(c, d.id);
+    if(entries.length===0){
+      html += `<div class="ticket"><h2>${escapeHtml(d.name)}</h2><div class="empty">Todavía nadie se ha apuntado a cocinar este plato.</div></div>`;
+      return;
+    }
+    const { totals, voteCount, expectedVoters, N, cats } = computeScores(c, d.id);
+    const ranked = entries.slice().sort((a,b)=> totals[b].total - totals[a].total);
+    const topScore = ranked.length ? totals[ranked[0]].total : 0;
+    const map = anonMapFor(entries, d.id);
+
+    // ganador por categoría
+    const catWinners = {};
+    cats.forEach(cat=>{
+      let best = null, bestScore = -1;
+      entries.forEach(e=>{
+        if(totals[e].cat[cat] > bestScore){ bestScore = totals[e].cat[cat]; best = e; }
+      });
+      catWinners[cat] = best;
+    });
+
+    html += `
+    <div class="ticket">
+      <h2>${escapeHtml(d.name)}</h2>
+      <div class="progress-line">${voteCount}/${expectedVoters} votos recibidos · máx. ${N} pts por categoría · votación anónima por número</div>
+      <table class="score">
+        <thead><tr>
+          <th>Nº</th>
+          ${cats.map(cat=>`<th>${escapeHtml(cat)}</th>`).join('')}
+          <th>Total</th>
+        </tr></thead>
+        <tbody>
+          ${ranked.map(name=>`
+            <tr class="${totals[name].total===topScore && topScore>0 ? 'winner':''}">
+              <td>${escapeHtml(map[name])}${totals[name].total===topScore && topScore>0 ? ' <span class="stamp">GANADOR</span>':''}</td>
+              ${cats.map(cat=>`<td>${totals[name].cat[cat]}${catWinners[cat]===name && totals[name].cat[cat]>0 ?' <span class="pill gold">mejor</span>':''}</td>`).join('')}
+              <td><b>${totals[name].total}</b></td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+      ${S.isAdmin ? `<div class="desc" style="margin-top:10px;"><span class="pill gold">solo admin</span> Leyenda: ${entries.map(n=>`${escapeHtml(map[n])} = ${escapeHtml(n)}`).join(' · ')}</div>` : ''}
+      ${S.isAdmin ? renderVoteDetail(c, d) : ''}
+    </div>`;
+  });
+  return html;
+}
+
+function renderVoteDetail(c, d){
+  const cats = dishCategories(d, c);
+  const voters = Object.entries(c.votes).filter(([voter, byDish])=> byDish[d.id]);
+  if(voters.length===0) return `<div class="desc" style="margin-top:14px;">Detalle de votos (solo tú lo ves): todavía nadie ha votado ${escapeHtml(d.name)}.</div>`;
+  let html = `<div style="margin-top:18px;border-top:1px dashed #ddd6c4;padding-top:12px;">
+    <div class="desc" style="margin-bottom:8px;"><span class="pill gold">solo admin</span> Detalle de quién votó qué, en ${escapeHtml(d.name)}:</div>`;
+  voters.forEach(([voter, byDish])=>{
+    const v = byDish[d.id];
+    html += `<div style="margin-bottom:8px;font-size:13px;"><b>${escapeHtml(voter)}</b><br>`;
+    cats.forEach(cat=>{
+      const order = v[cat];
+      if(order) html += `<span class="muted" style="color:var(--ink-soft)">${escapeHtml(cat)}: ${order.map(escapeHtml).join(' › ')}</span><br>`;
+    });
+    html += `</div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderAdmin(){
+  const c = S.contest;
+  let html = '';
+
+  html += renderParticipantsAdmin(c);
+
+  html += `<div class="ticket">
+    <h2>Reiniciar concurso</h2>
+    <div class="desc">Borra a todos los participantes y todos los votos de esta semana, pero mantiene los mismos platos y categorías. Útil si os habéis equivocado o queréis repetir la ronda.</div>
+    ${S.confirmReset
+      ? `<div class="btn-row" style="align-items:center;"><span style="font-size:13px;">¿Seguro? No se puede deshacer.</span><button class="btn-primary" id="confirmResetBtn">Sí, reiniciar</button><button class="btn-ghost" id="cancelResetBtn">Cancelar</button></div>`
+      : `<div class="btn-row"><button class="btn-ghost" id="resetVotesBtn">Reiniciar participantes y votos</button></div>`}
+  </div>`;
+
+  html += renderEditContestForm(c);
+
+  html += `<div class="ticket">
+    <h2>Cerrar semana y archivar</h2>
+    <div class="desc">Guarda el resultado actual en el historial y te lleva a elegir dos platos totalmente nuevos.</div>
+    ${S.confirmClose
+      ? `<div class="btn-row" style="align-items:center;"><span style="font-size:13px;">¿Seguro?</span><button class="btn-primary" id="confirmCloseBtn">Sí, cerrar semana</button><button class="btn-ghost" id="cancelCloseBtn">Cancelar</button></div>`
+      : `<div class="btn-row"><button class="btn-ghost" id="requestCloseBtn">Cerrar semana y empezar otra</button></div>`}
+  </div>`;
+
+  html += `<div class="ticket"><h2>Registro de votos individuales</h2><div class="desc">Quién ha votado qué, plato por plato (con nombres reales, aunque en la app el resto solo vea números).</div>`;
+  c.dishes.forEach(d=>{
+    if(dishEntries(c, d.id).length===0) return;
+    html += `<div style="margin-top:10px;"><b style="font-family:'Fraunces',serif;">${escapeHtml(d.name)}</b>`;
+    html += renderVoteDetail(c, d);
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  return html;
+}
+
+function renderParticipantsAdmin(c){
+  const entries = Object.entries(c.participants);
+  let html = `<div class="ticket">
+    <h2>Gestionar participantes</h2>
+    <div class="desc">Añade a alguien manualmente (por ejemplo si no puede entrar desde su móvil) o quita a quien haga falta.</div>`;
+  if(entries.length){
+    entries.forEach(([n,p])=>{
+      const label = p.role==='cook' ? 'cocina '+escapeHtml(c.dishes.find(d=>d.id===p.dishId).name) : 'come y vota';
+      html += `<div class="rank-row"><div class="rank-name">${escapeHtml(n)} — ${label}</div>
+        <button class="arrow-btn" style="width:auto;padding:0 10px;" data-removeparticipant="${escapeAttr(n)}">Quitar</button></div>`;
+    });
+  } else {
+    html += `<div class="empty">Nadie registrado todavía.</div>`;
+  }
+  html += `
+    <label>Nombre</label>
+    <input type="text" id="newParticipantName" placeholder="Nombre del participante">
+    <label>Rol</label>
+    <select id="newParticipantRole">
+      <option value="eater">Solo come</option>
+      <option value="cook:d1">Cocina — ${escapeHtml(c.dishes[0].name)}</option>
+      <option value="cook:d2">Cocina — ${escapeHtml(c.dishes[1].name)}</option>
+    </select>
+    <div class="btn-row"><button class="btn-primary" id="addParticipantBtn">Añadir participante</button></div>
+  </div>`;
+  return html;
+}
+
+function renderEditContestForm(c){
+  const d1 = c.dishes[0], d2 = c.dishes[1];
+  const cats1 = dishCategories(d1, c);
+  const cats2 = dishCategories(d2, c);
+  return `<div class="ticket">
+    <h2>Editar platos y categorías</h2>
+    <div class="desc">Cambia el nombre de cada plato y sus categorías de puntuación. Si cambias las categorías después de que ya haya votos, esos votos antiguos dejan de contar en el cálculo.</div>
+    <label>Plato 1</label>
+    <input type="text" id="editDish1" value="${escapeAttr(d1.name)}">
+    <label>Categorías del plato 1 (una por línea)</label>
+    <textarea id="editCats1">${cats1.map(escapeHtml).join('\n')}</textarea>
+    <label>Plato 2</label>
+    <input type="text" id="editDish2" value="${escapeAttr(d2.name)}">
+    <label>Categorías del plato 2 (una por línea)</label>
+    <textarea id="editCats2">${cats2.map(escapeHtml).join('\n')}</textarea>
+    <div class="btn-row">
+      <button class="btn-primary" id="saveContestMetaBtn">Guardar cambios</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- Utilidades ---------- */
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function escapeAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+
+function bindAppEvents(){
+  const homeBtn = document.getElementById('homeBtn');
+  if(homeBtn) homeBtn.onclick = goHome;
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if(logoutBtn) logoutBtn.onclick = logoutUser;
+
+  const dismissFlashBtn = document.getElementById('dismissFlashBtn');
+  if(dismissFlashBtn) dismissFlashBtn.onclick = dismissFlash;
+
+  const submitPinBtn = document.getElementById('submitPinBtn');
+  const pinInput = document.getElementById('pinInput');
+  if(submitPinBtn && pinInput){
+    submitPinBtn.onclick = ()=> checkPin(pinInput.value);
+    pinInput.onkeydown = (e)=>{ if(e.key==='Enter') checkPin(pinInput.value); };
+  }
+  const lockAdminBtn = document.getElementById('lockAdminBtn');
+  if(lockAdminBtn) lockAdminBtn.onclick = lockAdmin;
+
+  const changeRoleBtn = document.getElementById('changeRoleBtn');
+  if(changeRoleBtn) changeRoleBtn.onclick = clearMyRole;
+
+  const createBtn = document.getElementById('createBtn');
+  if(createBtn){
+    createBtn.onclick = ()=>{
+      const d1 = document.getElementById('dish1').value;
+      const d2 = document.getElementById('dish2').value;
+      const cats1 = document.getElementById('cats1').value.split('\n');
+      const cats2 = document.getElementById('cats2').value.split('\n');
+      createWeek(d1, d2, cats1, cats2);
+    };
+  }
+
+  const saveContestMetaBtn = document.getElementById('saveContestMetaBtn');
+  if(saveContestMetaBtn){
+    saveContestMetaBtn.onclick = ()=>{
+      const d1 = document.getElementById('editDish1').value;
+      const d2 = document.getElementById('editDish2').value;
+      const cats1 = document.getElementById('editCats1').value.split('\n');
+      const cats2 = document.getElementById('editCats2').value.split('\n');
+      saveContestMeta(d1, d2, cats1, cats2);
+    };
+  }
+
+  const resetVotesBtn = document.getElementById('resetVotesBtn');
+  if(resetVotesBtn) resetVotesBtn.onclick = requestResetVotes;
+  const confirmResetBtn = document.getElementById('confirmResetBtn');
+  if(confirmResetBtn) confirmResetBtn.onclick = doResetVotes;
+  const cancelResetBtn = document.getElementById('cancelResetBtn');
+  if(cancelResetBtn) cancelResetBtn.onclick = cancelResetVotes;
+
+  const addParticipantBtn = document.getElementById('addParticipantBtn');
+  if(addParticipantBtn){
+    addParticipantBtn.onclick = ()=>{
+      const name = document.getElementById('newParticipantName').value;
+      const role = document.getElementById('newParticipantRole').value;
+      adminAddParticipant(name, role);
+    };
+  }
+  document.querySelectorAll('[data-removeparticipant]').forEach(el=>{
+    el.onclick = ()=> adminRemoveParticipant(el.dataset.removeparticipant);
+  });
+
+  const requestCloseBtn = document.getElementById('requestCloseBtn');
+  if(requestCloseBtn) requestCloseBtn.onclick = requestCloseWeek;
+  const confirmCloseBtn = document.getElementById('confirmCloseBtn');
+  if(confirmCloseBtn) confirmCloseBtn.onclick = doCloseWeek;
+  const cancelCloseBtn = document.getElementById('cancelCloseBtn');
+  if(cancelCloseBtn) cancelCloseBtn.onclick = cancelCloseWeek;
+
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.onclick = ()=> setTab(t.dataset.tab);
+  });
+  document.querySelectorAll('.role-opt').forEach(el=>{
+    el.onclick = ()=> registerRole(el.dataset.role, el.dataset.dish || null);
+  });
+
+  document.querySelectorAll('[data-startvote]').forEach(el=>{
+    el.onclick = ()=> startVote(el.dataset.startvote);
+  });
+  document.querySelectorAll('[data-move]').forEach(el=>{
+    el.onclick = ()=>{
+      const [dishId, cat, idx, dir] = el.dataset.move.split('|');
+      moveEntry(dishId, cat, parseInt(idx), parseInt(dir));
+    };
+  });
+  document.querySelectorAll('[data-submitvote]').forEach(el=>{
+    el.onclick = ()=> submitVote(el.dataset.submitvote);
+  });
+  const cancelVoteBtn = document.getElementById('cancelVoteBtn');
+  if(cancelVoteBtn) cancelVoteBtn.onclick = cancelVote;
+}
+
+render();
+</script>
+</body>
+</html>
