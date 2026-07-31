@@ -40,6 +40,22 @@
   .wrap{max-width:760px;margin:0 auto;padding:28px 18px 0;}
   header.top{text-align:center;margin-bottom:22px;}
   .logo-badge{margin:0 auto 10px;display:block;filter:drop-shadow(0 6px 18px rgba(255,106,26,0.35));}
+  .steam{display:block;margin:0 auto -8px;opacity:.6;}
+  .steam-line{animation: steamRise 3.2s ease-in-out infinite;}
+  .steam-line.s2{animation-delay:.5s;}
+  .steam-line.s3{animation-delay:1s;}
+  @keyframes steamRise{
+    0%{opacity:.15; transform:translateY(4px);}
+    50%{opacity:.7; transform:translateY(-3px);}
+    100%{opacity:.15; transform:translateY(4px);}
+  }
+  .utensil-divider{
+    text-align:center;
+    font-size:15px;
+    letter-spacing:4px;
+    opacity:.55;
+    margin:14px 0 0;
+  }
   .eyebrow{
     font-family:'Space Mono',monospace;
     letter-spacing:.18em;
@@ -200,7 +216,7 @@
     font-family:'Space Mono',monospace;
     font-weight:700;
     color:var(--red);
-    width:22px;
+    width:30px;
   }
   .rank-name{flex:1;font-size:14px;}
   .rank-arrows{display:flex;gap:4px;}
@@ -248,12 +264,36 @@
     font-size:11px;color:var(--chalk-dim);
     background:rgba(0,0,0,0.25);
     padding:5px 10px;border-radius:20px;
+    max-width:calc(100vw - 28px);
+    text-align:right;
   }
   .cat-list-input{margin-top:8px;}
   .cat-line{display:flex;gap:6px;margin-bottom:6px;}
   .cat-line input{flex:1;}
   .small-x{
     background:transparent;color:var(--red);border:none;font-size:16px;cursor:pointer;padding:0 6px;
+  }
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-top:10px;}
+  .table-scroll table.score{margin-top:0;min-width:460px;}
+
+  @media (max-width:600px){
+    .wrap{padding:20px 14px 0;}
+    .ticket{padding:20px 16px;}
+    .who{
+      position:static;
+      display:block;
+      max-width:none;
+      width:fit-content;
+      margin:0 auto 14px;
+      text-align:center;
+    }
+    .name-screen{margin:40px auto;}
+    .btn-row{gap:8px;}
+    button{padding:10px 14px;font-size:12.5px;}
+    .tab{padding:8px 10px 7px;font-size:11px;}
+    .rank-row{gap:6px;padding:8px;}
+    .rank-name{font-size:13px;}
+    h1{font-size:clamp(26px,8vw,36px);}
   }
 </style>
 </head>
@@ -319,7 +359,8 @@ const S = {
   loaded:false,
   flash: null,          // {text, type}
   confirmReset: false,
-  confirmClose: false
+  confirmClose: false,
+  confirmPublish: false
 };
 
 const CATS_DEFAULT = ["Presentación","Sabor","Sal","Textura"];
@@ -351,6 +392,17 @@ const LOGO_SVG = `
   <circle cx="60" cy="60" r="33" fill="#0c0c0d" stroke="#FF6A1A" stroke-width="3"/>
   <text x="60" y="76" text-anchor="middle" font-family="Fraunces, serif" font-weight="700" font-size="46" fill="#FFB347">S</text>
 </svg>`;
+
+/* Vaporcillo subiendo por encima del emblema, como un plato recién hecho. */
+const STEAM_SVG = `
+<svg class="steam" width="64" height="26" viewBox="0 0 64 26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <path class="steam-line s1" d="M12 24 C 5 17, 18 11, 12 4" stroke="#FFB347" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path class="steam-line s2" d="M32 24 C 25 15, 38 9, 32 1" stroke="#FF6A1A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path class="steam-line s3" d="M52 24 C 45 17, 58 11, 52 4" stroke="#FFB347" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>`;
+
+/* Cenefa de utensilios, un pequeño guiño de cocina como separador. */
+const UTENSIL_DIVIDER = `<div class="utensil-divider">🍳 &nbsp; 🔪 &nbsp; 🥄 &nbsp; 🍳 &nbsp; 🔪</div>`;
 
 /* Cambia este PIN para controlar quién puede crear/gestionar el concurso. */
 const ADMIN_PIN = 'SAKENCHEF';
@@ -390,6 +442,7 @@ async function refresh(){
   }
   const c = await getContest();
   S.contest = c;
+  S.history = await getHistory();
   S.loaded = true;
   render();
 }
@@ -462,7 +515,8 @@ async function createWeek(dish1, dish2, cats1, cats2, dateStr){
       {id:'d2', name:dish2, categories:cats2}
     ],
     participants: {},
-    votes: {}
+    votes: {},
+    resultsPublished: false
   };
   await saveContest(contest);
   render();
@@ -579,6 +633,7 @@ function moveEntry(dishId, cat, idx, dir){
 
 async function submitVote(dishId){
   const c = S.contest;
+  if(c.resultsPublished){ flash('La votación ya ha terminado.'); return; }
   c.votes[S.user] = c.votes[S.user] || {};
   c.votes[S.user][dishId] = S.draft[dishId];
   await saveContest(c);
@@ -606,7 +661,7 @@ function computeScores(c, dishId){
       if(!order) return;
       order.forEach((name, idx)=>{
         if(totals[name]===undefined) return;
-        const points = N - idx;
+        const points = idx + 1; // 1 = el puesto que más ha gustado
         totals[name].cat[cat] += points;
         totals[name].total += points;
       });
@@ -654,6 +709,29 @@ async function doResetVotes(){
   await saveContest(c);
   S.confirmReset = false;
   flash('Participantes y votos reiniciados. Los platos y categorías se mantienen.', 'info');
+}
+
+function requestPublishResults(){
+  if(!S.isAdmin){ flash('Solo la administradora puede publicar los resultados.'); return; }
+  S.confirmPublish = true;
+  render();
+}
+function cancelPublishResults(){
+  S.confirmPublish = false;
+  render();
+}
+async function doPublishResults(){
+  const c = S.contest;
+  c.resultsPublished = true;
+  await saveContest(c);
+  S.confirmPublish = false;
+  flash('Resultados publicados: la votación ha quedado cerrada.', 'info');
+}
+async function unpublishResults(){
+  const c = S.contest;
+  c.resultsPublished = false;
+  await saveContest(c);
+  flash('Resultados despublicados: la votación vuelve a estar abierta.', 'info');
 }
 
 async function saveContestMeta(dish1, dish2, cats1, cats2, dateStr){
@@ -705,6 +783,7 @@ function render(){
   if(S.tab==='panel') html += renderPanel();
   if(S.tab==='votar') html += renderVotar();
   if(S.tab==='resultados') html += renderResultados();
+  if(S.tab==='historico') html += renderHistorico();
   if(S.tab==='admin' && S.isAdmin) html += renderAdmin();
 
   html += `</div>`;
@@ -715,8 +794,9 @@ function render(){
 function renderNameScreen(){
   return `
   <div class="name-screen">
+    ${STEAM_SVG}
     ${LOGO_SVG}
-    <div class="eyebrow">Concurso de cocina de oficina</div>
+    <div class="eyebrow">¡El concursillo de cocina!</div>
     <h1 style="margin-bottom:14px;">SAKEN CHEF</h1>
     <p class="sub" style="margin-bottom:20px;">Escribe tu nombre para entrar a la semana en curso.</p>
     <input id="nameInput" type="text" placeholder="Tu nombre" style="text-align:center;">
@@ -736,12 +816,14 @@ function bindNameScreen(){
 function renderHeader(){
   return `
   <header class="top">
+    ${STEAM_SVG}
     ${LOGO_SVG}
-    <div class="eyebrow">Concurso de cocina de oficina</div>
+    <div class="eyebrow">¡El concursillo de cocina!</div>
     <h1>SAKEN CHEF</h1>
     <p class="sub">Cocina, vota y descubre quién se lleva el delantal esta semana.</p>
     ${S.contest ? `<div class="weeklabel">${escapeHtml(S.contest.weekLabel)} · ${escapeHtml(S.contest.dishes[0].name)} vs ${escapeHtml(S.contest.dishes[1].name)}</div>` : ''}
-  </header>`;
+  </header>
+  ${UTENSIL_DIVIDER}`;
 }
 
 function renderCreateContestForm(){
@@ -781,12 +863,102 @@ function renderTabs(){
     ['inicio','Inicio'],
     ['panel','Mi participación'],
     ['votar','Votar'],
-    ['resultados','Resultados']
+    ['resultados','Resultados'],
+    ['historico','Histórico']
   ];
   if(S.isAdmin) tabs.push(['admin','Admin']);
   return `<nav class="rail">
     ${tabs.map(([id,label])=>`<div class="tab ${S.tab===id?'active':''}" data-tab="${id}">${label}</div>`).join('')}
   </nav>`;
+}
+
+function renderHistorico(){
+  if(!S.history || S.history.length===0){
+    return `<div class="ticket"><h2>Histórico</h2><div class="empty">Todavía no hay ediciones archivadas. Aparecerán aquí cada vez que la administradora cierre una semana.</div></div>`;
+  }
+  let html = `<div class="ticket"><h2>Histórico de ediciones</h2><div class="desc">Quién ganó en semanas anteriores.</div></div>`;
+  S.history.forEach(h=>{
+    html += `<div class="ticket"><h2>${escapeHtml(h.weekLabel || 'Edición anterior')}</h2>`;
+    if(h.photoUrl){
+      html += `<img src="${h.photoUrl}" alt="Foto de la edición" style="width:100%;max-width:320px;border-radius:8px;display:block;margin:6px 0 14px;border:1px solid var(--line);">`;
+    }
+    (h.dishes||[]).forEach(d=>{
+      const entries = dishEntries(h, d.id);
+      if(entries.length===0){
+        html += `<div class="desc"><b>${escapeHtml(d.name)}</b>: nadie se apuntó a cocinarlo.</div>`;
+        return;
+      }
+      const { totals, voteCount } = computeScores(h, d.id);
+      if(voteCount===0){
+        html += `<div class="desc"><b>${escapeHtml(d.name)}</b>: no llegó a votarse.</div>`;
+        return;
+      }
+      const winner = entries.slice().sort((a,b)=> totals[a].total - totals[b].total)[0];
+      html += `<p class="ribbon">${trophySvgInline()} <b>${escapeHtml(d.name)}</b>: ganó ${escapeHtml(winner)}</p>`;
+    });
+    html += `</div>`;
+  });
+  return html;
+}
+
+async function adminEditHistoryEntry(idx, label, d1name, d2name){
+  const h = S.history[idx];
+  if(!h) return;
+  label = (label||'').trim();
+  d1name = (d1name||'').trim();
+  d2name = (d2name||'').trim();
+  if(label) h.weekLabel = label;
+  if(d1name && h.dishes && h.dishes[0]) h.dishes[0].name = d1name;
+  if(d2name && h.dishes && h.dishes[1]) h.dishes[1].name = d2name;
+  await saveHistory(S.history);
+  flash('Edición del histórico actualizada.', 'info');
+}
+
+async function adminDeleteHistoryEntry(idx){
+  S.history.splice(idx, 1);
+  await saveHistory(S.history);
+  flash('Esa edición se ha borrado del histórico.', 'info');
+}
+
+async function adminSetHistoryPhoto(idx, dataUrl){
+  const h = S.history[idx];
+  if(!h) return;
+  h.photoUrl = dataUrl;
+  await saveHistory(S.history);
+  flash('Foto guardada para esa edición.', 'info');
+}
+
+function renderHistoricoAdmin(){
+  if(!S.history || S.history.length===0){
+    return `<div class="ticket"><h2>Editar histórico</h2><div class="empty">Todavía no hay ediciones archivadas que editar.</div></div>`;
+  }
+  let html = `<div class="ticket"><h2>Editar histórico</h2><div class="desc">Corrige nombres, borra una edición equivocada, o súbele una foto (por ejemplo del ganador o del plato).</div>`;
+  S.history.forEach((h, idx)=>{
+    const d1 = h.dishes && h.dishes[0] ? h.dishes[0].name : '';
+    const d2 = h.dishes && h.dishes[1] ? h.dishes[1].name : '';
+    html += `
+    <div style="border-top:1px dashed #ddd6c4;padding-top:14px;margin-top:14px;">
+      <label>Etiqueta de la semana</label>
+      <input type="text" id="histLabel_${idx}" value="${escapeAttr(h.weekLabel||'')}">
+      <label>Nombre plato 1</label>
+      <input type="text" id="histDish1_${idx}" value="${escapeAttr(d1)}">
+      <label>Nombre plato 2</label>
+      <input type="text" id="histDish2_${idx}" value="${escapeAttr(d2)}">
+      <label>Foto de esta edición</label>
+      ${h.photoUrl ? `<img src="${h.photoUrl}" style="max-width:160px;border-radius:6px;display:block;margin-bottom:8px;">` : ''}
+      <input type="file" accept="image/*" data-histphoto="${idx}">
+      <div class="btn-row">
+        <button class="btn-primary" data-savehist="${idx}">Guardar cambios</button>
+        <button class="btn-ghost" data-delhist="${idx}">Borrar esta edición</button>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function trophySvgInline(){
+  return `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a2 2 0 0 0 2 4M17 5h3a2 2 0 0 1-2 4"/></svg>`;
 }
 
 function renderInicio(){
@@ -877,6 +1049,9 @@ function renderVotar(){
   if(!c){
     return `<div class="ticket"><div class="empty">Todavía no hay concurso esta semana.</div></div>`;
   }
+  if(c.resultsPublished){
+    return `<div class="ticket"><div class="empty">La votación ya ha terminado. Mira quién ganó en la pestaña Resultados.</div></div>`;
+  }
   const me = c.participants[S.user];
   if(!me){
     return `<div class="ticket"><div class="empty">Primero dinos qué haces esta semana en «Mi participación».</div></div>`;
@@ -913,7 +1088,7 @@ function renderVoteForm(d, entries){
   let html = `
   <div class="ticket">
     <h2>Votar — ${escapeHtml(d.name)}</h2>
-    <div class="desc">Ordena de mejor a peor en cada categoría por su número (no ves nombres: la cata es anónima). La primera posición se lleva ${entries.length} puntos, la última 1.</div>`;
+    <div class="desc">Ordena de mejor a peor en cada categoría por su número (no ves nombres: la cata es anónima). El <b>puesto 1 es tu favorito</b> en esa categoría, y así sucesivamente hasta el puesto ${entries.length} (el que menos te ha gustado). Al final, <b>gana quien menos puntos acumule en total</b> — como en el golf.</div>`;
   cats.forEach(cat=>{
     const arr = draft[cat];
     html += `
@@ -921,7 +1096,7 @@ function renderVoteForm(d, entries){
       <h4>${escapeHtml(cat)}</h4>
       ${arr.map((name, idx)=>`
         <div class="rank-row">
-          <div class="rank-num">${arr.length-idx}</div>
+          <div class="rank-num">${idx+1}º</div>
           <div class="rank-name">${escapeHtml(map[name] || name)}</div>
           <div class="rank-arrows">
             <button class="arrow-btn" ${idx===0?'disabled':''} data-move="${d.id}|${escapeAttr(cat)}|${idx}|-1">↑</button>
@@ -944,7 +1119,13 @@ function renderResultados(){
   if(!c){
     return `<div class="ticket"><div class="empty">Todavía no hay concurso esta semana.</div></div>`;
   }
+  if(!c.resultsPublished && !S.isAdmin){
+    return `<div class="ticket"><h2>Resultados</h2><div class="desc">Todavía no se han publicado. La administradora los publicará cuando cierre la votación.</div></div>`;
+  }
   let html = '';
+  if(!c.resultsPublished && S.isAdmin){
+    html += `<div class="ticket" style="border:2px dashed var(--gold);"><div class="desc"><span class="pill gold">solo tú lo ves</span> Esta vista previa todavía no es pública. Publícala desde la pestaña Admin cuando quieras cerrar la votación.</div></div>`;
+  }
   c.dishes.forEach(d=>{
     const entries = dishEntries(c, d.id);
     if(entries.length===0){
@@ -952,16 +1133,19 @@ function renderResultados(){
       return;
     }
     const { totals, voteCount, expectedVoters, N, cats } = computeScores(c, d.id);
-    const ranked = entries.slice().sort((a,b)=> totals[b].total - totals[a].total);
-    const topScore = ranked.length ? totals[ranked[0]].total : 0;
+    // Ranking: gana quien MENOS puntos sume (1 = el puesto que más gusta)
+    const ranked = entries.slice().sort((a,b)=> totals[a].total - totals[b].total);
+    const bestScore = ranked.length ? totals[ranked[0]].total : 0;
+    const positionOf = {};
+    ranked.forEach((name, i)=> positionOf[name] = i+1);
     const map = anonMapFor(entries, d);
 
-    // ganador por categoría
+    // ganador por categoría: también gana quien menos puntos sume en esa categoría
     const catWinners = {};
     cats.forEach(cat=>{
-      let best = null, bestScore = -1;
+      let best = null, bestCatScore = Infinity;
       entries.forEach(e=>{
-        if(totals[e].cat[cat] > bestScore){ bestScore = totals[e].cat[cat]; best = e; }
+        if(totals[e].cat[cat] < bestCatScore){ bestCatScore = totals[e].cat[cat]; best = e; }
       });
       catWinners[cat] = best;
     });
@@ -969,22 +1153,23 @@ function renderResultados(){
     html += `
     <div class="ticket">
       <h2>${escapeHtml(d.name)}</h2>
-      <div class="progress-line">${voteCount}/${expectedVoters} votos recibidos · máx. ${N} pts por categoría · votación anónima por número</div>
-      <table class="score">
+      <div class="progress-line">${voteCount}/${expectedVoters} votos recibidos · votación anónima por número</div>
+      <div class="desc" style="margin-top:4px;">Habéis ordenado de mejor a peor: gana quien menos puntos acumule.</div>
+      <div class="table-scroll"><table class="score">
         <thead><tr>
           <th>Nº</th>
           ${cats.map(cat=>`<th>${escapeHtml(cat)}</th>`).join('')}
-          <th>Total</th>
+          <th>Ranking</th>
         </tr></thead>
         <tbody>
           ${ranked.map(name=>`
-            <tr class="${totals[name].total===topScore && topScore>0 ? 'winner':''}">
-              <td>${escapeHtml(map[name])}${totals[name].total===topScore && topScore>0 ? ' <span class="stamp">GANADOR</span>':''}</td>
+            <tr class="${totals[name].total===bestScore && bestScore>0 ? 'winner':''}">
+              <td>${escapeHtml(map[name])}${totals[name].total===bestScore && bestScore>0 ? ' <span class="stamp">GANADOR</span>':''}</td>
               ${cats.map(cat=>`<td>${totals[name].cat[cat]}${catWinners[cat]===name && totals[name].cat[cat]>0 ?' <span class="pill gold">mejor</span>':''}</td>`).join('')}
-              <td><b>${totals[name].total}</b></td>
+              <td><b>${positionOf[name]}º</b></td>
             </tr>`).join('')}
         </tbody>
-      </table>
+      </table></div>
       ${S.isAdmin ? `<div class="desc" style="margin-top:10px;"><span class="pill gold">solo admin</span> Leyenda: ${entries.map(n=>`${escapeHtml(map[n])} = ${escapeHtml(n)}`).join(' · ')}</div>` : ''}
       ${S.isAdmin ? renderVoteDetail(c, d) : ''}
     </div>`;
@@ -1018,6 +1203,18 @@ function renderAdmin(){
   }
   let html = '';
 
+  html += `<div class="ticket" style="border-color:var(--gold);">
+    <h2>${c.resultsPublished ? '✅ Resultados publicados' : 'Publicar resultados'}</h2>
+    <div class="desc">${c.resultsPublished
+      ? 'Todo el mundo puede ver ya quién ha ganado. La votación está cerrada.'
+      : 'Mientras no publiques, solo tú ves los resultados en la pestaña Resultados y la gente puede seguir votando. Al publicar, se cierra la votación y todos podrán ver quién ha ganado.'}</div>
+    ${c.resultsPublished
+      ? `<div class="btn-row"><button class="btn-ghost" id="unpublishBtn">Despublicar (reabrir votación)</button></div>`
+      : (S.confirmPublish
+          ? `<div class="btn-row" style="align-items:center;"><span style="font-size:13px;">¿Seguro? Se cerrará la votación para todos.</span><button class="btn-primary" id="confirmPublishBtn">Sí, publicar</button><button class="btn-ghost" id="cancelPublishBtn">Cancelar</button></div>`
+          : `<div class="btn-row"><button class="btn-primary" id="requestPublishBtn">Publicar resultados y cerrar votación</button></div>`)}
+  </div>`;
+
   html += renderParticipantsAdmin(c);
 
   html += `<div class="ticket">
@@ -1046,6 +1243,8 @@ function renderAdmin(){
     html += `</div>`;
   });
   html += `</div>`;
+
+  html += renderHistoricoAdmin();
 
   return html;
 }
@@ -1085,6 +1284,8 @@ function renderEditContestForm(c){
   return `<div class="ticket">
     <h2>Editar platos y categorías</h2>
     <div class="desc">Cambia el nombre de cada plato y sus categorías de puntuación. Si cambias las categorías después de que ya haya votos, esos votos antiguos dejan de contar en el cálculo.</div>
+    <label>Día del concurso</label>
+    <input type="date" id="editContestDate" value="${c.date || todayIso()}">
     <label>Plato 1</label>
     <input type="text" id="editDish1" value="${escapeAttr(d1.name)}">
     <label>Categorías del plato 1 (una por línea)</label>
@@ -1132,7 +1333,8 @@ function bindAppEvents(){
       const d2 = document.getElementById('dish2').value;
       const cats1 = document.getElementById('cats1').value.split('\n');
       const cats2 = document.getElementById('cats2').value.split('\n');
-      createWeek(d1, d2, cats1, cats2);
+      const dateStr = document.getElementById('contestDate').value;
+      createWeek(d1, d2, cats1, cats2, dateStr);
     };
   }
 
@@ -1143,7 +1345,8 @@ function bindAppEvents(){
       const d2 = document.getElementById('editDish2').value;
       const cats1 = document.getElementById('editCats1').value.split('\n');
       const cats2 = document.getElementById('editCats2').value.split('\n');
-      saveContestMeta(d1, d2, cats1, cats2);
+      const dateStr = document.getElementById('editContestDate').value;
+      saveContestMeta(d1, d2, cats1, cats2, dateStr);
     };
   }
 
@@ -1172,6 +1375,38 @@ function bindAppEvents(){
   if(confirmCloseBtn) confirmCloseBtn.onclick = doCloseWeek;
   const cancelCloseBtn = document.getElementById('cancelCloseBtn');
   if(cancelCloseBtn) cancelCloseBtn.onclick = cancelCloseWeek;
+
+  const requestPublishBtn = document.getElementById('requestPublishBtn');
+  if(requestPublishBtn) requestPublishBtn.onclick = requestPublishResults;
+  const confirmPublishBtn = document.getElementById('confirmPublishBtn');
+  if(confirmPublishBtn) confirmPublishBtn.onclick = doPublishResults;
+  const cancelPublishBtn = document.getElementById('cancelPublishBtn');
+  if(cancelPublishBtn) cancelPublishBtn.onclick = cancelPublishResults;
+  const unpublishBtn = document.getElementById('unpublishBtn');
+  if(unpublishBtn) unpublishBtn.onclick = unpublishResults;
+
+  document.querySelectorAll('[data-savehist]').forEach(el=>{
+    el.onclick = ()=>{
+      const idx = parseInt(el.dataset.savehist, 10);
+      const label = document.getElementById('histLabel_'+idx).value;
+      const d1 = document.getElementById('histDish1_'+idx).value;
+      const d2 = document.getElementById('histDish2_'+idx).value;
+      adminEditHistoryEntry(idx, label, d1, d2);
+    };
+  });
+  document.querySelectorAll('[data-delhist]').forEach(el=>{
+    el.onclick = ()=> adminDeleteHistoryEntry(parseInt(el.dataset.delhist, 10));
+  });
+  document.querySelectorAll('[data-histphoto]').forEach(el=>{
+    el.onchange = (e)=>{
+      const idx = parseInt(el.dataset.histphoto, 10);
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ()=> adminSetHistoryPhoto(idx, reader.result);
+      reader.readAsDataURL(file);
+    };
+  });
 
   document.querySelectorAll('.tab').forEach(t=>{
     t.onclick = ()=> setTab(t.dataset.tab);
